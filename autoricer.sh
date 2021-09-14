@@ -29,14 +29,14 @@ get_src() {
     scripts_repo="httpa://github.com/radinals/scripts.git"
     dwm_repo="https://github.com/radinals/dwm.git"
     dmenu_repo="https://github.com/radinals/dmenu.git"
-    dwmblocks_repo="https://github.com/radinals/dwmblocks.git"
+    #dwmblocks_repo="https://github.com/radinals/dwmblocks.git"
     st_repo="https://github.com/radinals/st.git"
     wp_repo="https://github.com/radinals/wallpapers.git"
 
     wp_setter="https://github.com/himdel/hsetroot"
     vol_control="https://github.com/cdemoulins/pamixer"
-    
-    my_repo=("$dotfiles_repo" "$dwm_repo" "$dmenu_repo" "$dwmblocks_repo" "$st_repo" "$scripts_repo")
+    #"$dwmblocks_repo"
+    my_repo=("$dotfiles_repo" "$dwm_repo" "$dmenu_repo" "$st_repo" "$scripts_repo")
 
     ext_repo=("$wp_setter" "$vol_control")
 
@@ -82,8 +82,8 @@ install_src() {
      printf "\n"
      cd dmenu && $root_user make install && cd ..
      printf "\n"
-     cd dwmblocks && $root_user make install && cd ..
-     printf "\n"
+     #cd dwmblocks && $root_user make install && cd ..
+     #printf "\n"
      cd st && $root_user make install && cd ..
      printf "\n"
  
