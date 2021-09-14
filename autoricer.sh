@@ -16,9 +16,13 @@ get_distro() {
 
 check_deps() {
 
-    if [ ! -f "/usr/bin/git" ]; then printf "git not found!" exit 0 fi
+    if [ ! -f "/usr/bin/git" ]; then 
+        printf "git not found!" && exit 0 
+    fi
 
-    if [ ! -f "/usr/bin/make" ]; then printf "make not found!" exit 0 fi
+    if [ ! -f "/usr/bin/make" ]; then 
+        printf "make not found!" && exit 0 
+    fi
 
     if [ -f "/usr/bin/sudo" ]; then
         root_user="sudo"
@@ -54,14 +58,14 @@ get_src() {
         #"$dwmblocks_repo"
         )
 
-    ext_repo=(
+    extra_repo=(
         "$wp_setter"
         "$vol_control"
     )
 
     for repo in ${my_repo[*]}
     do
-        git clone $repo 
+        git clone "$repo" 
     done
 
     printf "Download complete!."
@@ -70,9 +74,9 @@ get_src() {
 
     if [ "${answr^^}" == "yes" ] || [ "${answr^^}" == "y" ]; then
 
-        for repo in ${ext_repo[*]}
+        for repo in ${extra_repo[*]}
         do
-            git clone $repo
+            git clone "$repo"
         done
 
 	prinft "External Repos Downloaded"
@@ -91,11 +95,11 @@ get_build_preq() {
     rice_build_deps="libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev"
     extras_build_deps="libimlib2-dev libx11-dev pkg-config make libboost-program-options-dev libpulse-dev"
 
-    if [ $distro == "debian-based"]; then
-        sudo apt-get -s -q $rice_build_deps
+    if [ $distro == "debian-based" ]; then
+        sudo apt-get -s -q "$rice_build_deps"
 
         if [ $ext_repo == "Y" ]; then
-            sudo apt-get -s -q $rice_build_deps $extras_build_deps
+            sudo apt-get -s -q "$rice_build_deps $extras_build_deps"
 
         fi
     fi
@@ -104,10 +108,11 @@ get_build_preq() {
 install_src() {
 
     if [ ! -d "$HOME/Pictures" ]; then
-	mkdir $HOME/Pictures cp -r wallpapers $HOME/Pictures && printf "Wallpapers Installed" 
+        mkdir "$HOME/Pictures" && cp -r wallpapers "$HOME/Pictures" && printf "Wallpapers Installed" 
+
     fi
 
-     cd dotfiles &&  cp -r -i . $HOME && cd .. && printf "dotfiles installed"
+     cd dotfiles &&  cp -r -i . "$HOME" && cd .. && printf "dotfiles installed"
      printf "\n"
      $root_user cp -r scripts /usr/local/share && printf "scripts installed"
      printf "\n"
@@ -129,10 +134,18 @@ install_src() {
 
 }
 
-if [ ! -d "./autoricer" ]; then mkdir autoricer && cd autoricer ; else cd autoricer ; fi
+if [ ! -d "./autoricer" ]; then
+    mkdir autoricer && cd autoricer
+
+else
+    cd autoricer
+
+fi
 
 get_distro
 
 check_deps && get_src && get_build_preq && install_src
 
 printf "\nAll Done!\n"
+
+cd.. 
