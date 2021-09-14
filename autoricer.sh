@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
 
+get_distro() {
+    distrib=$(cat /etc/[A-Za-z]*[_-][rv]e[lr]* | grep DISTRIB_ID | awk -F "=" '{print $2}')
+
+    if [ "$distrib" == "Ubuntu" ] || [ "$distrib" == "Debian" ] || [ "$distrib" == "Linux Mint" ]; then
+        distro="debian-based"
+
+    else
+        printf "NOT YET SUPPORTED.. NEED MORE TESTING"
+        exit 0
+
+    fi
+}
+
+
 check_deps() {
 
-    if [ ! -f "/usr/bin/git" ]; then
-        printf "git not found!"
-        exit 0
-    fi
+    if [ ! -f "/usr/bin/git" ]; then printf "git not found!" exit 0 fi
 
-    if [ ! -f "/usr/bin/make" ]; then
-        printf "make not found!"
-        exit 0
-    fi
+    if [ ! -f "/usr/bin/make" ]; then printf "make not found!" exit 0 fi
 
     if [ -f "/usr/bin/sudo" ]; then
         root_user="sudo"
@@ -35,10 +43,21 @@ get_src() {
 
     wp_setter="https://github.com/himdel/hsetroot"
     vol_control="https://github.com/cdemoulins/pamixer"
-    #"$dwmblocks_repo"
-    my_repo=("$dotfiles_repo" "$dwm_repo" "$dmenu_repo" "$st_repo" "$scripts_repo")
 
-    ext_repo=("$wp_setter" "$vol_control")
+    my_repo=(
+        "$dotfiles_repo" 
+        "$dwm_repo" 
+        "$dmenu_repo"
+        "$st_repo"
+        "$scripts_repo" 
+        "$wp_repo"
+        #"$dwmblocks_repo"
+        )
+
+    ext_repo=(
+        "$wp_setter"
+        "$vol_control"
+    )
 
     for repo in ${my_repo[*]}
     do
@@ -68,6 +87,20 @@ get_src() {
     printf "\n"
 }
 
+get_build_preq() {
+    rice_build_deps="libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev"
+    extras_build_deps="libimlib2-dev libx11-dev pkg-config make libboost-program-options-dev libpulse-dev"
+
+    if [ $distro == "debian-based"]; then
+        sudo apt-get -s -q $rice_build_deps
+
+        if [ $ext_repo == "Y" ]; then
+            sudo apt-get -s -q $rice_build_deps $extras_build_deps
+
+        fi
+    fi
+}
+
 install_src() {
 
     if [ ! -d "$HOME/Pictures" ]; then
@@ -78,13 +111,13 @@ install_src() {
      printf "\n"
      $root_user cp -r scripts /usr/local/share && printf "scripts installed"
      printf "\n"
-     cd dwm && $root_user make install && cd ..
+     cd dwm && $root_user make -s install && cd ..
      printf "\n"
-     cd dmenu && $root_user make install && cd ..
+     cd dmenu && $root_user make -s install && cd ..
      printf "\n"
      #cd dwmblocks && $root_user make install && cd ..
      #printf "\n"
-     cd st && $root_user make install && cd ..
+     cd st && $root_user make -s install && cd ..
      printf "\n"
  
      if [ $ext_repo == "Y" ]; then
@@ -98,4 +131,8 @@ install_src() {
 
 if [ ! -d "./autoricer" ]; then mkdir autoricer && cd autoricer ; else cd autoricer ; fi
 
-check_deps && get_src && install_src && printf "\nAll Done!"
+get_distro
+
+check_deps && get_src && get_build_preq && install_src
+
+printf "\nAll Done!\n"
