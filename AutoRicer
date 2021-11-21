@@ -7,7 +7,7 @@ fi
 
 suckless_software(){
     if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
-	sudo apt get install libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev git
+	sudo apt-get install libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev git
     fi
 
     source_dir="$HOME/.local/src/RICE"
@@ -107,8 +107,7 @@ install_neovim(){
 
 install_hsetroot(){
     if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
-	sudo apt get install libmlib2-dev libx11-dev libxinerama-dev pkg-config make
-	apt get install libmlib2-dev libx11-dev libxinerama-dev pkg-config make
+	sudo apt-get install libmlib2-dev libx11-dev libxinerama-dev pkg-config make
     fi
 
     git_repo=https://github.com/himdel/hsetroot
