@@ -20,49 +20,51 @@ suckless_software(){
     scripts_repo="httpa://github.com/radinals/scripts.git"
     wp_repo="https://github.com/radinals/wallpapers.git"
 
-    [ ! -d "$source_dir/dwm" ] && echo "Git cloning dwm repo" && git clone "$dwm_repo" "$source_dir/dwm"
-    [ ! -d "$source_dir/dwmblocks" ] && echo "Git cloning dwmblocks repo" && git clone "$dwmblocks_repo" "$source_dir/dwmblocks"
-    [ ! -d "$source_dir/dmenu" ] && echo "Git cloning dmenu repo" && git clone "$dmenu_repo" "$source_dir/dmenu"
-    [ ! -d "$source_dir/st" ] && echo "Git cloning st repo" && git clone "$st_repo" "$source_dir/st"
-    [ ! -d "$source_dir/dotfiles" ] && echo "Git cloning dotfiles repo" && git clone "$dotfiles_repo" "$source_dir/dotfiles"
+    [ ! -d "$source_dir/dwm" ] && echo "Git cloning dwm repo" && git clone "$dwm_repo" "$source_dir/dwm" && echo -e "done\n"
+    [ ! -d "$source_dir/dwmblocks" ] && echo "Git cloning dwmblocks repo" && git clone "$dwmblocks_repo" "$source_dir/dwmblocks" && echo -e "done\n"
+    [ ! -d "$source_dir/dmenu" ] && echo "Git cloning dmenu repo" && git clone "$dmenu_repo" "$source_dir/dmenu" && echo -e "done\n"
+    [ ! -d "$source_dir/st" ] && echo "Git cloning st repo" && git clone "$st_repo" "$source_dir/st" && echo -e "done\n"
+    [ ! -d "$source_dir/dotfiles" ] && echo "Git cloning dotfiles repo" && git clone "$dotfiles_repo" "$source_dir/dotfiles" && echo -e "done\n"
 
     # TODO: FIX THIS, NEEDS A LOT MORE WORK!.
+    # TODO: Be able to pick and choose what to download and install.
 
     [ ! -d "$HOME/Pictures/" ] &&  mkdir -p "$HOME/Pictures" 
-    [ ! -d "$HOME/Pictures/Wallpapers" ] && echo "Git cloning wallpapers repo" && git clone "$wp_repo" "$HOME/Pictures/Wallpapers"
+    [ ! -d "$HOME/Pictures/Wallpapers" ] && echo "Git cloning wallpapers repo" && git clone "$wp_repo" "$HOME/Pictures/Wallpapers" && echo -e "done\n"
 
-    [ ! -d "$HOME/.local/bin/scripts" ] && echo "Git cloning scripts repo" && git clone "$scripts_repo" "$HOME/.local/bin/scripts"
+    [ ! -d "$HOME/.local/bin/scripts" ] && echo "Git cloning scripts repo" && git clone "$scripts_repo" "$HOME/.local/bin/scripts" && echo -e "done\n"
 
     makeCmd=$(sudo make install)
 
     echo "####################"
     echo "## INSTALLING DWM ##"
     echo "####################"
-    cd "$source_dir/dwm" && echo "Entered dwm build directory"
-    $makeCmd && cd && echo "Exited build directory"
+    cd "$source_dir/dwm" && echo "Entered dwm build directory" && sudo make install && cd && echo "Exited build directory"
+    echo -e "##########################\n"
 
     echo "##########################"
     echo "## INSTALLING DWMBLOCKS ##"
     echo "##########################"
-    cd "$source_dir/dwmblocks" && echo "Entered dwmblocks build directory"
-    $makeCmd && cd && echo "Exited build directory"
+    cd "$source_dir/dwmblocks" && echo "Entered dwmblocks build directory" && sudo make install && cd && echo "Exited build directory"
+    echo -e "##########################\n"
 
     echo "######################"
     echo "## INSTALLING DMENU ##"
     echo "######################"
-    cd "$source_dir/dmenu" && echo "Entered dmenu build directory"
-    $makeCmd && cd && echo "Exited build directory"
+    cd "$source_dir/dmenu" && echo "Entered dmenu build directory" && sudo make install && cd && echo "Exited build directory"
+    echo -e "##########################\n"
 
     echo "###################"
     echo "## INSTALLING ST ##"
     echo "###################"
-    cd "$source_dir/st" && echo "Entered st terminal build directory"
-    $makeCmd && cd && echo "Exited build directory"
+    cd "$source_dir/st" && echo "Entered st terminal build directory" && sudo make install && cd && echo "Exited build directory"
+    echo -e "##########################\n"
 
     echo "#########################"
     echo "## INSTALLING DOTFILES ##"
     echo "#########################"
     cd "$source_dir/dotfiles" && ./install.sh && cd && echo "installed"
+    echo -e "##########################\n"
 }
 
 install_neovim(){
@@ -85,7 +87,7 @@ install_neovim(){
     
     # check the directories
     [ ! -d "$source_dir" ] && echo "## Creating a Directory in $source_dir  " && mkdir -p "$source_dir"
-    [ ! -d "$source_dir/neovim" ] && echo "## No existing Neovim source file found, doing a 'git clone' ##" git clone "$neovim_repo" "$source_dir/neovim"
+    [ ! -d "$source_dir/neovim" ] && echo "## No existing Neovim source file found, doing a 'git clone' ##" git clone "$neovim_repo" "$source_dir/neovim" && echo -e "done\n"
     
     cd "$source_dir/neovim" && echo "Entered the source directory"
     
@@ -96,7 +98,7 @@ install_neovim(){
     echo "#####################"
     echo "## BUILDING NEOVIM ##"
     echo "#####################"
-    sudo make CMAKE_BUILD_TYPE=Release clean install
+    sudo make CMAKE_BUILD_TYPE=Release && sudo make clean install
     
     echo "####################"
     echo "## BUILD COMPLETE ##"
@@ -113,7 +115,7 @@ install_hsetroot(){
     git_repo=https://github.com/himdel/hsetroot
     source_dir="$HOME/.local/src"
 
-    [ ! -d "$source_dir/hsetroot" ] && echo "Git cloning hsetroot repo" && git clone "$git_repo" "$source_dir/hsetroot"
+    [ ! -d "$source_dir/hsetroot" ] && echo "Git cloning hsetroot repo" && git clone "$git_repo" "$source_dir/hsetroot" && echo -e "done\n"
 
     cd "$source_dir/hsetroot" && echo "Entered build directory"
 
@@ -130,7 +132,7 @@ install_ncpamixer(){
 	sudo apt-get install -y pulseaudio ncurses git ncurses-base ncurses-bin ncurses-term libncurses-dev libpulse-dev
     fi
 
-    git_repo="https://github.com/fulhax/ncpamixer"
+    git_repo="https://github.com/fulhax/ncpamixer" && echo -e "done\n"
     source_dir="$HOME/.local/src"
 
     [ ! -d "$source_dir" ] && echo "Creating a directory in $source_dir" && mkdir -v "$source_dir"
@@ -151,6 +153,5 @@ set_system_settings(){
     if ! [ -x "$(command -v "zsh")" ]; then sudo apt install zsh && chsh -s "/usr/bin/zsh" "$USER"; fi
 
 }
-
 
 suckless_software && install_neovim && install_hsetroot && install_ncpamixer
