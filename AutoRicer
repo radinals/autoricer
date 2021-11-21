@@ -152,3 +152,6 @@ set_system_settings(){
     if ! [ -x "$(command -v "zsh")" ]; then sudo apt install zsh && chsh -s "/usr/bin/zsh" "$USER"; fi
 
 }
+
+
+suckless_software && install_neovim && install_hsetroot && install_ncpamixer
