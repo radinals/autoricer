@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+
+if [ ! $EUID -ne 0 ]; then
+    echo "DO NOT RUN THIS AS ROOT!"
+    exit 0
+fi
+
+suckless_software(){
+    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
+	sudo apt get install libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev git
+    fi
+
+    source_dir="$HOME/.local/src/RICE"
+
+    dwm_repo="https://github.com/radinals/dwm.git"
+    dwmblocks_repo="https://github.com/radinals/dwmblocks.git"
+    dmenu_repo="https://github.com/radinals/dmenu.git"
+    st_repo="https://github.com/radinals/st.git"
+    dotfiles_repo="https://github.com/radinals/dotfiles.git"
+    scripts_repo="httpa://github.com/radinals/scripts.git"
+    wp_repo="https://github.com/radinals/wallpapers.git"
+
+    [ ! -d "$source_dir/dwm" ] && echo "Git cloning dwm repo" && git clone "$dwm_repo" "$source_dir/dwm"
+    [ ! -d "$source_dir/dwmblocks" ] && echo "Git cloning dwmblocks repo" && git clone "$dwmblocks_repo" "$source_dir/dwmblocks"
+    [ ! -d "$source_dir/dmenu" ] && echo "Git cloning dmenu repo" && git clone "$dmenu_repo" "$source_dir/dmenu"
+    [ ! -d "$source_dir/st" ] && echo "Git cloning st repo" && git clone "$st_repo" "$source_dir/st"
+    [ ! -d "$source_dir/dotfiles" ] && echo "Git cloning dotfiles repo" && git clone "$dotfiles_repo" "$source_dir/dotfiles"
+
+    # TODO: FIX THIS, NEEDS A LOT MORE WORK!.
+
+    [ ! -d "$HOME/Pictures/" ] &&  mkdir -p "$HOME/Pictures" 
+    [ ! -d "$HOME/Pictures/Wallpapers" ] && echo "Git cloning wallpapers repo" && git clone "$wp_repo" "$HOME/Pictures/Wallpapers"
+
+    [ ! -d "$HOME/.local/bin/scripts" ] && echo "Git cloning scripts repo" && git clone "$scripts_repo" "$HOME/.local/bin/scripts"
+
+    makeCmd=$(sudo make install)
+
+    echo "####################"
+    echo "## INSTALLING DWM ##"
+    echo "####################"
+    cd "$source_dir/dwm" && echo "Entered dwm build directory"
+    $makeCmd && cd && echo "Exited build directory"
+
+    echo "##########################"
+    echo "## INSTALLING DWMBLOCKS ##"
+    echo "##########################"
+    cd "$source_dir/dwmblocks" && echo "Entered dwmblocks build directory"
+    $makeCmd && cd && echo "Exited build directory"
+
+    echo "######################"
+    echo "## INSTALLING DMENU ##"
+    echo "######################"
+    cd "$source_dir/dmenu" && echo "Entered dmenu build directory"
+    $makeCmd && cd && echo "Exited build directory"
+
+    echo "###################"
+    echo "## INSTALLING ST ##"
+    echo "###################"
+    cd "$source_dir/st" && echo "Entered st terminal build directory"
+    $makeCmd && cd && echo "Exited build directory"
+
+    echo "#########################"
+    echo "## INSTALLING DOTFILES ##"
+    echo "#########################"
+    cd "$source_dir/dotfiles" && ./install.sh && cd && echo "installed"
+}
+
+install_neovim(){
+
+    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
+	sudo apt-get -y install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
+    fi
+    
+    neovim_repo="https://github.com/neovim/neovim"
+    source_dir="$HOME/.local/src/"
+    
+    echo "This script installs neovim from source"
+    echo "A few confirmation is needed"
+    
+    echo "Do you want to install the stable version, or just the latest version? Y/N "
+    read -p "> " is_stable 
+    
+    echo "Do a git pull? Y\N (say yes if the source code already exists, and you want to update it.)"
+    read -p "> " do_gitpull
+    
+    # check the directories
+    [ ! -d "$source_dir" ] && echo "## Creating a Directory in $source_dir  " && mkdir -p "$source_dir"
+    [ ! -d "$source_dir/neovim" ] && echo "## No existing Neovim source file found, doing a 'git clone' ##" git clone "$neovim_repo" "$source_dir/neovim"
+    
+    cd "$source_dir/neovim" && echo "Entered the source directory"
+    
+    if [ "${do_gitpull^^}" == y ]; then echo "## Doing a 'git pull' ##" && git pull; fi
+    
+    if [ "${is_stable^^}" == Y ]; then echo "## Version set to 'stable' ##" && git checkout stable ; fi
+    
+    echo "#####################"
+    echo "## BUILDING NEOVIM ##"
+    echo "#####################"
+    sudo make CMAKE_BUILD_TYPE=Release clean install
+    
+    echo "####################"
+    echo "## BUILD COMPLETE ##"
+    echo "####################"
+    nvim --version | grep "NVIM v" 
+    nvim --version | grep "Build type"
+}
+
+install_hsetroot(){
+    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
+	sudo apt get install libmlib2-dev libx11-dev libxinerama-dev pkg-config make
+	apt get install libmlib2-dev libx11-dev libxinerama-dev pkg-config make
+    fi
+
+    git_repo=https://github.com/himdel/hsetroot
+    source_dir="$HOME/.local/src"
+
+    [ ! -d "$source_dir/hsetroot" ] && echo "Git cloning hsetroot repo" && git clone "$git_repo" "$source_dir/hsetroot"
+
+    cd "$source_dir/hsetroot" && echo "Entered build directory"
+
+    echo "#######################"
+    echo "## BUILDING HSETROOT ##"
+    echo "#######################"
+    sudo make clean install
+
+    cd && echo "Exiting build directory"
+}
+
+install_ncpamixer(){
+    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
+	sudo apt-get install -y pulseaudio ncurses git ncurses-base ncurses-bin ncurses-term libncurses-dev libpulse-dev
+    fi
+
+    git_repo="https://github.com/fulhax/ncpamixer"
+    source_dir="$HOME/.local/src"
+
+    [ ! -d "$source_dir" ] && echo "Creating a directory in $source_dir" && mkdir -v "$source_dir"
+    [ ! -d "$source_dir/ncpamixer" ] && echo "Git cloning ncpamixer repo" && git clone "$git_repo" "$source_dir/ncpamixer"
+
+    cd "$source_dir/ncpamixer" && "Entered build directory"
+
+    echo "########################"
+    echo "## BUILDING NCPAMIXER ##"
+    echo "########################"
+    sudo make clean install
+
+    cd && echo "Exiting build directory"
+}
+
+set_system_settings(){
+
+    if ! [ -x "$(command -v "zsh")" ]; then sudo apt install zsh && chsh -s "/usr/bin/zsh" "$USER"; fi
+
+}
