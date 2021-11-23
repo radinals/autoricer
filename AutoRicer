@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 
-if [ ! $EUID -ne 0 ]; then
-    echo "DO NOT RUN THIS AS ROOT!"
-    exit 0
-fi
+[ ! $EUID -ne 0 ] && echo "DO NOT RUN THIS AS ROOT!" && exit 0
 
 suckless_software(){
-    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
-	sudo apt-get install libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev git
-    fi
+    sudo apt-get install libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev git
 
     source_dir="$HOME/.local/src/RICE"
 
@@ -60,6 +55,8 @@ suckless_software(){
     cd "$source_dir/st" && echo "Entered st terminal build directory" && sudo make install && cd && echo "Exited build directory"
     echo -e "##########################\n"
 
+    # TODO: Still does'nt work
+    # The script need more work
     echo "#########################"
     echo "## INSTALLING DOTFILES ##"
     echo "#########################"
@@ -67,50 +64,53 @@ suckless_software(){
     echo -e "##########################\n"
 }
 
+# TODO: Still does'nt work
+# build error
 install_neovim(){
 
-    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
-	sudo apt-get -y install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
-    fi
+    sudo apt-get -y install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
     
     neovim_repo="https://github.com/neovim/neovim"
     source_dir="$HOME/.local/src/"
     
-    echo "This script installs neovim from source"
-    echo "A few confirmation is needed"
-    
-    echo "Do you want to install the stable version, or just the latest version? Y/N "
-    read -p "> " is_stable 
-    
-    echo "Do a git pull? Y\N (say yes if the source code already exists, and you want to update it.)"
-    read -p "> " do_gitpull
+    # echo "This script installs neovim from source"
+    # echo "A few confirmation is needed"
+    # 
+    # echo "Do you want to install the stable version, or just the latest version? Y/N "
+    # read -p "> " is_stable 
+    # 
+    # echo "Do a git pull? Y\N (say yes if the source code already exists, and you want to update it.)"
+    # read -p "> " do_gitpull
     
     # check the directories
     [ ! -d "$source_dir" ] && echo "## Creating a Directory in $source_dir  " && mkdir -p "$source_dir"
     [ ! -d "$source_dir/neovim" ] && echo "## No existing Neovim source file found, doing a 'git clone' ##" git clone "$neovim_repo" "$source_dir/neovim" && echo -e "done\n"
     
-    cd "$source_dir/neovim" && echo "Entered the source directory"
-    
-    if [ "${do_gitpull^^}" == y ]; then echo "## Doing a 'git pull' ##" && git pull; fi
-    
-    if [ "${is_stable^^}" == Y ]; then echo "## Version set to 'stable' ##" && git checkout stable ; fi
+#     [ "${do_gitpull^^}" == "Y" ] then echo "## Doing a 'git pull' ##" && git pull
+# 
+#     [ "${is_stable^^}" == "Y" ] then echo "## Version set to 'stable' ##" && git checkout stable
     
     echo "#####################"
     echo "## BUILDING NEOVIM ##"
     echo "#####################"
-    sudo make CMAKE_BUILD_TYPE=Release && sudo make clean install
+    cd "$source_dir/neovim" && echo "Entered the source directory" && git checkout stable && sudo make CMAKE_BUILD_TYPE=Release && sudo make clean install
     
     echo "####################"
     echo "## BUILD COMPLETE ##"
     echo "####################"
-    nvim --version | grep "NVIM v" 
-    nvim --version | grep "Build type"
+    if [ -x "$(command -v "nvim")" ]; then 
+	nvim --version | grep "NVIM v" 
+	nvim --version | grep "Build type"
+    else
+	echo "Install Failed!"
+	exit 0
+    fi
 }
 
+# TODO: Still does'nt work
+# missing a dependency
 install_hsetroot(){
-    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
-	sudo apt-get install libmlib2-dev libx11-dev libxinerama-dev pkg-config make
-    fi
+    sudo apt-get -y install  libmlib2-dev libx11-dev libxinerama-dev pkg-config make
 
     git_repo=https://github.com/himdel/hsetroot
     source_dir="$HOME/.local/src"
@@ -122,15 +122,14 @@ install_hsetroot(){
     echo "#######################"
     echo "## BUILDING HSETROOT ##"
     echo "#######################"
-    sudo make clean install
-
-    cd && echo "Exiting build directory"
+    cd "$source_dir/hsetroot" && echo -e "Entered build directory\n" && \
+	sudo make clean install && cd && echo -e "Exiting build directory\n"
 }
 
+# TODO: Still does'nt work
+# build error
 install_ncpamixer(){
-    if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
-	sudo apt-get install -y pulseaudio ncurses git ncurses-base ncurses-bin ncurses-term libncurses-dev libpulse-dev
-    fi
+    sudo apt-get -y install pulseaudio ncurses git ncurses-base ncurses-bin ncurses-term libncurses-dev libpulse-dev
 
     git_repo="https://github.com/fulhax/ncpamixer" && echo -e "done\n"
     source_dir="$HOME/.local/src"
@@ -138,14 +137,11 @@ install_ncpamixer(){
     [ ! -d "$source_dir" ] && echo "Creating a directory in $source_dir" && mkdir -v "$source_dir"
     [ ! -d "$source_dir/ncpamixer" ] && echo "Git cloning ncpamixer repo" && git clone "$git_repo" "$source_dir/ncpamixer"
 
-    cd "$source_dir/ncpamixer" && "Entered build directory"
-
     echo "########################"
     echo "## BUILDING NCPAMIXER ##"
     echo "########################"
-    sudo make clean install
-
-    cd && echo "Exiting build directory"
+    cd "$source_dir/ncpamixer" && echo -e "Entered build directory\n" && \
+	sudo make clean install && cd && echo -e "Exiting build directory\n"
 }
 
 set_system_settings(){
@@ -154,4 +150,10 @@ set_system_settings(){
 
 }
 
-suckless_software && install_neovim && install_hsetroot && install_ncpamixer
+if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
+    suckless_software && install_neovim && install_hsetroot && install_ncpamixer
+
+else
+    echo "this distribution is not yet supported/tested"
+
+fi
