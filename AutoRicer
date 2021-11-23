@@ -112,7 +112,7 @@ install_neovim(){
     	echo "#####################"
 
     	cd "$source_dir/neovim" && echo "Entered the source directory" && \
-    	    git checkout stable && sudo make CMAKE_BUILD_TYPE=Release && sudo make clean install
+    	    git checkout stable && sudo make CMAKE_BUILD_TYPE=Release && sudo make install
     	
     	echo "####################"
     	echo "## BUILD COMPLETE ##"
@@ -138,7 +138,7 @@ install_hsetroot(){
     	echo "## BUILDING HSETROOT ##"
     	echo "#######################"
     	cd "$source_dir/hsetroot" && echo -e "Entered build directory\n" && \
-	    sudo make clean install && cd && echo -e "Exiting build directory\n"
+	    sudo make install && cd && echo -e "Exiting build directory\n"
     else
 	echo -e "hsetroot already installed... skipping\n"
     fi
@@ -148,7 +148,7 @@ install_hsetroot(){
 # build error
 install_ncpamixer(){
     if ! [ -x "$(command -v "ncpamixer")" ]; then 
-	sudo apt-get -y install pulseaudio ncurses git ncurses-base ncurses-bin ncurses-term libncurses-dev libpulse-dev
+	sudo apt-get -y install pulseaudio git libncurses-dev libpulse-dev
 
     	git_repo="https://github.com/fulhax/ncpamixer" && echo -e "done\n"
     	source_dir="$HOME/.local/src"
@@ -159,7 +159,7 @@ install_ncpamixer(){
     	echo "## BUILDING NCPAMIXER ##"
     	echo "########################"
     	cd "$source_dir/ncpamixer" && echo -e "Entered build directory\n" && \
-	    sudo make clean install && cd && echo -e "Exiting build directory\n"
+	    make USE_WIDE=True && sudo make install && cd && echo -e "Exiting build directory\n"
     else
 	echo -e "ncpamixer already installed.. skipping\n"
     fi
