@@ -24,124 +24,145 @@ suckless_software(){
     # TODO: FIX THIS, NEEDS A LOT MORE WORK!.
     # TODO: Be able to pick and choose what to download and install.
 
-    [ ! -d "$HOME/Pictures/" ] &&  mkdir -p "$HOME/Pictures" 
-    [ ! -d "$HOME/Pictures/Wallpapers" ] && echo "Git cloning wallpapers repo" && git clone "$wp_repo" "$HOME/Pictures/Wallpapers" && echo -e "done\n"
+    # [ ! -d "$HOME/Pictures/" ] &&  mkdir -p "$HOME/Pictures" 
+    # [ ! -d "$HOME/Pictures/Wallpapers" ] && echo "Git cloning wallpapers repo" && git clone "$wp_repo" "$HOME/Pictures/Wallpapers" && echo -e "done\n"
 
-    [ ! -d "$HOME/.local/bin/scripts" ] && echo "Git cloning scripts repo" && git clone "$scripts_repo" "$HOME/.local/bin/scripts" && echo -e "done\n"
+    # [ ! -d "$HOME/.local/bin/scripts" ] && echo "Git cloning scripts repo" && git clone "$scripts_repo" "$HOME/.local/bin/scripts" && echo -e "done\n"
 
     makeCmd=$(sudo make install)
 
-    echo "####################"
-    echo "## INSTALLING DWM ##"
-    echo "####################"
-    cd "$source_dir/dwm" && echo "Entered dwm build directory" && sudo make install && cd && echo "Exited build directory"
-    echo -e "##########################\n"
+    if ! [ -x "$(command -v "dwm")" ]; then 
+	echo "####################"
+    	echo "## INSTALLING DWM ##"
+    	echo "####################"
+	cd "$source_dir/dwm" && echo "Entered dwm build directory" && sudo make install && cd && echo "Exited build directory"
+	echo -e "##########################\n"
+    else
+	echo -e "dwm already installed, skipping step...\n"
+    fi
 
-    echo "##########################"
-    echo "## INSTALLING DWMBLOCKS ##"
-    echo "##########################"
-    cd "$source_dir/dwmblocks" && echo "Entered dwmblocks build directory" && sudo make install && cd && echo "Exited build directory"
-    echo -e "##########################\n"
+    if ! [ -x "$(command -v "dwmblocks")" ]; then 
+	echo "##########################"
+    	echo "## INSTALLING DWMBLOCKS ##"
+    	echo "##########################"
+	cd "$source_dir/dwmblocks" && echo "Entered dwmblocks build directory" && sudo make install && cd && echo "Exited build directory"
+	echo -e "##########################\n"
+    else
+	echo -e "dwmblocks already installed, skipping step...\n"
+    fi
 
-    echo "######################"
-    echo "## INSTALLING DMENU ##"
-    echo "######################"
-    cd "$source_dir/dmenu" && echo "Entered dmenu build directory" && sudo make install && cd && echo "Exited build directory"
-    echo -e "##########################\n"
+    if ! [ -x "$(command -v "dmenu")" ]; then 
+	echo "######################"
+    	echo "## INSTALLING DMENU ##"
+    	echo "######################"
+    	cd "$source_dir/dmenu" && echo "Entered dmenu build directory" && sudo make install && cd && echo "Exited build directory"
+    	echo -e "##########################\n"
+    else
+	echo -e "dmenu already installed, skipping step...\n"
+    fi
 
-    echo "###################"
-    echo "## INSTALLING ST ##"
-    echo "###################"
-    cd "$source_dir/st" && echo "Entered st terminal build directory" && sudo make install && cd && echo "Exited build directory"
-    echo -e "##########################\n"
+    if ! [ -x "$(command -v "st")" ]; then 
+	echo "###################"
+    	echo "## INSTALLING ST ##"
+    	echo "###################"
+    	cd "$source_dir/st" && echo "Entered st terminal build directory" && sudo make install && cd && echo "Exited build directory"
+    	echo -e "##########################\n"
+    else
+	echo -e "st already installed, skipping step...\n"
+    fi
 
     # TODO: Still does'nt work
     # The script need more work
-    echo "#########################"
-    echo "## INSTALLING DOTFILES ##"
-    echo "#########################"
-    cd "$source_dir/dotfiles" && ./install.sh && cd && echo "installed"
-    echo -e "##########################\n"
+    # REMINDER: Just make a makefile!
+    # echo "#########################"
+    # echo "## INSTALLING DOTFILES ##"
+    # echo "#########################"
+    # cd "$source_dir/dotfiles" && ./install.sh && cd && echo "installed"
+    # echo -e "##########################\n"
 }
 
 # TODO: Still does'nt work
 # build error
 install_neovim(){
 
-    sudo apt-get -y install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
-    
-    neovim_repo="https://github.com/neovim/neovim"
-    source_dir="$HOME/.local/src/"
-    
-    # echo "This script installs neovim from source"
-    # echo "A few confirmation is needed"
-    # 
-    # echo "Do you want to install the stable version, or just the latest version? Y/N "
-    # read -p "> " is_stable 
-    # 
-    # echo "Do a git pull? Y\N (say yes if the source code already exists, and you want to update it.)"
-    # read -p "> " do_gitpull
-    
-    # check the directories
-    [ ! -d "$source_dir" ] && echo "## Creating a Directory in $source_dir  " && mkdir -p "$source_dir"
-    [ ! -d "$source_dir/neovim" ] && echo "## No existing Neovim source file found, doing a 'git clone' ##" git clone "$neovim_repo" "$source_dir/neovim" && echo -e "done\n"
-    
-#     [ "${do_gitpull^^}" == "Y" ] then echo "## Doing a 'git pull' ##" && git pull
-# 
-#     [ "${is_stable^^}" == "Y" ] then echo "## Version set to 'stable' ##" && git checkout stable
-    
-    echo "#####################"
-    echo "## BUILDING NEOVIM ##"
-    echo "#####################"
-    cd "$source_dir/neovim" && echo "Entered the source directory" && git checkout stable && sudo make CMAKE_BUILD_TYPE=Release && sudo make clean install
-    
-    echo "####################"
-    echo "## BUILD COMPLETE ##"
-    echo "####################"
-    if [ -x "$(command -v "nvim")" ]; then 
-	nvim --version | grep "NVIM v" 
-	nvim --version | grep "Build type"
+    if ! [ -x "$(command -v "nvim")" ]; then 
+	sudo apt-get -y install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
+
+	neovim_repo="https://github.com/neovim/neovim"
+    	source_dir="$HOME/.local/src"
+    	
+    	# echo "This script installs neovim from source"
+    	# echo "A few confirmation is needed"
+    	# 
+    	# echo "Do you want to install the stable version, or just the latest version? Y/N "
+    	# read -p "> " is_stable 
+    	# 
+    	# echo "Do a git pull? Y\N (say yes if the source code already exists, and you want to update it.)" read -p "> " do_gitpull
+    	
+    	# check the directories
+    	[ ! -d "$source_dir/neovim" ] && \
+    	    echo "## No existing Neovim source file found, doing a 'git clone' ##" && \
+	    git clone "$neovim_repo" "$source_dir/neovim" && echo -e "done\n"
+    	
+        #   [ "${do_gitpull^^}" == "Y" ] then echo "## Doing a 'git pull' ##" && git pull
+        #   [ "${is_stable^^}" == "Y" ] then echo "## Version set to 'stable' ##" && git checkout stable
+    	
+    	echo "#####################"
+    	echo "## BUILDING NEOVIM ##"
+    	echo "#####################"
+
+    	cd "$source_dir/neovim" && echo "Entered the source directory" && \
+    	    git checkout stable && sudo make CMAKE_BUILD_TYPE=Release && sudo make clean install
+    	
+    	echo "####################"
+    	echo "## BUILD COMPLETE ##"
+    	echo "####################"
     else
-	echo "Install Failed!"
-	exit 0
+	echo -e "nvim already installed.. skipping\n"
     fi
 }
 
 # TODO: Still does'nt work
 # missing a dependency
 install_hsetroot(){
-    sudo apt-get -y install  libmlib2-dev libx11-dev libxinerama-dev pkg-config make
+    if ! [ -x "$(command -v "hsetroot")" ]; then 
+	sudo apt-get -y install  libimlib2 libimlib2-dev libx11-dev libxinerama-dev pkg-config make
 
-    git_repo=https://github.com/himdel/hsetroot
-    source_dir="$HOME/.local/src"
+	git_repo=https://github.com/himdel/hsetroot
+    	source_dir="$HOME/.local/src"
 
-    [ ! -d "$source_dir/hsetroot" ] && echo "Git cloning hsetroot repo" && git clone "$git_repo" "$source_dir/hsetroot" && echo -e "done\n"
+    	[ ! -d "$source_dir/hsetroot" ] && echo "Git cloning hsetroot repo" && \
+	    git clone "$git_repo" "$source_dir/hsetroot" && echo -e "done\n"
 
-    cd "$source_dir/hsetroot" && echo "Entered build directory"
-
-    echo "#######################"
-    echo "## BUILDING HSETROOT ##"
-    echo "#######################"
-    cd "$source_dir/hsetroot" && echo -e "Entered build directory\n" && \
-	sudo make clean install && cd && echo -e "Exiting build directory\n"
+    	echo "#######################"
+    	echo "## BUILDING HSETROOT ##"
+    	echo "#######################"
+    	cd "$source_dir/hsetroot" && echo -e "Entered build directory\n" && \
+	    sudo make clean install && cd && echo -e "Exiting build directory\n"
+    else
+	echo -e "hsetroot already installed... skipping\n"
+    fi
 }
 
 # TODO: Still does'nt work
 # build error
 install_ncpamixer(){
-    sudo apt-get -y install pulseaudio ncurses git ncurses-base ncurses-bin ncurses-term libncurses-dev libpulse-dev
+    if ! [ -x "$(command -v "ncpamixer")" ]; then 
+	sudo apt-get -y install pulseaudio ncurses git ncurses-base ncurses-bin ncurses-term libncurses-dev libpulse-dev
 
-    git_repo="https://github.com/fulhax/ncpamixer" && echo -e "done\n"
-    source_dir="$HOME/.local/src"
+    	git_repo="https://github.com/fulhax/ncpamixer" && echo -e "done\n"
+    	source_dir="$HOME/.local/src"
 
-    [ ! -d "$source_dir" ] && echo "Creating a directory in $source_dir" && mkdir -v "$source_dir"
-    [ ! -d "$source_dir/ncpamixer" ] && echo "Git cloning ncpamixer repo" && git clone "$git_repo" "$source_dir/ncpamixer"
+    	[ ! -d "$source_dir/ncpamixer" ] && echo "Git cloning ncpamixer repo" && git clone "$git_repo" "$source_dir/ncpamixer"
 
-    echo "########################"
-    echo "## BUILDING NCPAMIXER ##"
-    echo "########################"
-    cd "$source_dir/ncpamixer" && echo -e "Entered build directory\n" && \
-	sudo make clean install && cd && echo -e "Exiting build directory\n"
+    	echo "########################"
+    	echo "## BUILDING NCPAMIXER ##"
+    	echo "########################"
+    	cd "$source_dir/ncpamixer" && echo -e "Entered build directory\n" && \
+	    sudo make clean install && cd && echo -e "Exiting build directory\n"
+    else
+	echo -e "ncpamixer already installed.. skipping\n"
+    fi
 }
 
 set_system_settings(){
@@ -151,6 +172,7 @@ set_system_settings(){
 }
 
 if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
+    [ ! -d "$source_dir" ] && echo "## Creating a Directory in $source_dir  " && mkdir -p "$source_dir"
     suckless_software && install_neovim && install_hsetroot && install_ncpamixer
 
 else
