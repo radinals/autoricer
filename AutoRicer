@@ -73,11 +73,6 @@ MakeNvim(){
     printf "\n" 
 }
 
-GetProgDeps(){
-    printf "%s\n" "Installing Package Dependencies..."
-    InstallPkg "$1"
-}
-
 GitMakeInstall(){
     ProgRepo="$1"
     ProgDeps="$2"
@@ -101,8 +96,9 @@ GitMakeInstall(){
 }
 
 InstallGitPkg(){
+    InstallPkg "${BuildDeps[@]}"
     for r in "${GitRepoList[@]}"; do
-        GitMakeInstall "$r" "${BuildDeps[@]}"
+        GitMakeInstall "$r" 
     done
 }
 
