@@ -1,43 +1,5 @@
 #!/usr/bin/env bash
 
-# TODO:
-# - Add something that shows the progress
-# - be able to toggle the build info prompt on/off
-# - be able to toggle the auto git pull off
-# - remove the git pull hint prompt, and make it auto overwrite the previous repository
-# BUGS:
-# gnu tls failes when git pulling
-
-GitRepoList=("https://github.com/radinals/dwm.git"
-    "https://github.com/radinals/dwmblocks.git"
-    "https://github.com/radinals/dmenu.git"
-    "https://github.com/radinals/st.git"
-    "https://github.com/fulhax/ncpamixer"
-    "https://github.com/himdel/hsetroot.git"
-    "https://github.com/neovim/neovim.git")
-
-BuildDeps=("libgdk-pixbuf-xlib-2.0-0"
-    "libxinerama-dev"
-    "libimlib2-dev"
-    "libx11-dev"
-    "libxinerama-dev"
-    "pkg-config"
-    "pulseaudio"
-    "libncurses-dev"
-    "libpulse-dev"
-    "libxft-dev"
-    "ninja-build"
-    "gettext"
-    "libtool"
-    "libtool-bin"
-    "autoconf"
-    "automake"
-    "cmake"
-    "g++"
-    "unzip"
-    "curl"
-    "doxygen")
-
 error(){ printf "%s\n" "##### $1 #####" >&2; exit 1; }
 
 GitCloneRepo(){
@@ -85,22 +47,49 @@ GitMakeInstall(){
     GitCloneRepo "$SourceDir/$ProgName" "$ProgRepo"
 
     if [ "$ProgName" == "neovim" ]; then
-	MakeNvim "$SourceDir/$ProgName"
+	read -p "install neovim stable?" confirm_neovim
+	if [ "${confirm_neovim^^}" == "Y" ]; then
+	    MakeNvim "$SourceDir/$ProgName"
+	else
+	    printf "%s\n" "cancelled..."
+	fi
     else
 	MakePkg "$SourceDir/$ProgName"
     fi
 }
 
-InstallGitPkg(){
-    apt-get -y install "${BuildDeps[@]}"
-    for r in "${GitRepoList[@]}"; do
-        GitMakeInstall "$r" 
-    done
-}
+GitRepoList=("https://github.com/radinals/dwm.git"
+    "https://github.com/radinals/dwmblocks.git"
+    "https://github.com/radinals/dmenu.git"
+    "https://github.com/radinals/st.git"
+    "https://github.com/fulhax/ncpamixer"
+    "https://github.com/himdel/hsetroot.git"
+    "https://github.com/neovim/neovim.git")
 
-# InstallScripts()
-# InstallDotfiles()
-# InstallWallpapers()
-# InstallExtraPkg()
+BuildDeps=("libgdk-pixbuf-xlib-2.0-0"
+    "libxinerama-dev"
+    "libimlib2-dev"
+    "libx11-dev"
+    "libxinerama-dev"
+    "pkg-config"
+    "pulseaudio"
+    "libncurses-dev"
+    "libpulse-dev"
+    "libxft-dev"
+    "ninja-build"
+    "gettext"
+    "libtool"
+    "libtool-bin"
+    "autoconf"
+    "automake"
+    "cmake"
+    "g++"
+    "unzip"
+    "curl"
+    "doxygen")
 
-InstallGitPkg
+apt-get -y install "${BuildDeps[@]}" || error "Installing dependencies failed"
+
+for r in "${GitRepoList[@]}"; do
+    GitMakeInstall "$r" || error "Failed Installing $r..."
+done
