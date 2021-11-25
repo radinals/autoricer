@@ -93,7 +93,6 @@ GitMakeInstall(){
     [ ! -d "$SourceDir" ] && mkdir -p "$SourceDir"
 
     printf "%s\n" "##### $ProgName #####"
-    GetProgDeps "$ProgDeps"
     GitCloneRepo "$SourceDir/$ProgName" "$ProgRepo"
 
     if [ "$ProgName" == "neovim" ]; then
@@ -103,11 +102,13 @@ GitMakeInstall(){
     fi
 }
 
+GetProgDeps "${BuildDeps[@]}"
 for r in "${GitRepoList[@]}"; do
-    GitMakeInstall "$r" "${BuildDeps[@]}"
+    GitMakeInstall "$r" 
 done
 
 # InstallScripts()
 # InstallDotfiles()
 # InstallWallpapers()
 # InstallExtraPkg()
+
