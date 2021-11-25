@@ -38,8 +38,6 @@ BuildDeps=("libgdk-pixbuf-xlib-2.0-0"
     "curl"
     "doxygen")
 
-echo ${BuildDeps[@]}
-
 InstallPkg(){ apt-get -y install "$1" >/dev/null 2>&1; }
 
 error(){ printf "%s\n" "##### $1 #####" >&2; exit 1; }
@@ -76,9 +74,8 @@ MakeNvim(){
 }
 
 GetProgDeps(){
-    DepPkg=$1
     printf "%s\n" "Installing Package Dependencies..."
-    InstallPkg "${DepPkg[@]}"
+    InstallPkg "$1"
 }
 
 GitMakeInstall(){
@@ -93,6 +90,7 @@ GitMakeInstall(){
     [ ! -d "$SourceDir" ] && mkdir -p "$SourceDir"
 
     printf "%s\n" "##### $ProgName #####"
+    GetProgDeps "$ProgDeps"
     GitCloneRepo "$SourceDir/$ProgName" "$ProgRepo"
 
     if [ "$ProgName" == "neovim" ]; then
@@ -102,13 +100,15 @@ GitMakeInstall(){
     fi
 }
 
-GetProgDeps "${BuildDeps[@]}"
-for r in "${GitRepoList[@]}"; do
-    GitMakeInstall "$r" 
-done
+InstallGitPkg(){
+    for r in "${GitRepoList[@]}"; do
+        GitMakeInstall "$r" "${BuildDeps[@]}"
+    done
+}
 
 # InstallScripts()
 # InstallDotfiles()
 # InstallWallpapers()
 # InstallExtraPkg()
 
+InstallGitPkg
