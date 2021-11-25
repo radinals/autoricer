@@ -17,8 +17,8 @@ GitCloneRepo(){
 MakePkg(){
     cd "$1" || exit 1
     printf "%s\n" "Building..."
-    make >/dev/null 2>&1
-    make install >/dev/null
+    make
+    make install
     printf "%s\n" "Build complete..."
     printf "\n" 
 }
