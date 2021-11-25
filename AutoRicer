@@ -38,7 +38,7 @@ BuildDeps=("libgdk-pixbuf-xlib-2.0-0"
     "curl"
     "doxygen")
 
-echo ${#BuildDeps[@]}
+echo ${BuildDeps[@]}
 
 InstallPkg(){ apt-get -y install "$1" >/dev/null 2>&1; }
 
@@ -77,7 +77,7 @@ MakeNvim(){
 
 GetProgDeps(){
     DepPkg=$1
-	printf "%s\n" "Installing Package Dependencies..."
+    printf "%s\n" "Installing Package Dependencies..."
     InstallPkg "${DepPkg[@]}"
 }
 
@@ -103,15 +103,11 @@ GitMakeInstall(){
     fi
 }
 
-InstallGitPkg(){
-    for r in "${GitRepoList[@]}"; do
-        GitMakeInstall "$r" "${BuildDeps[@]}"
-    done
-}
+for r in "${GitRepoList[@]}"; do
+    GitMakeInstall "$r" "${BuildDeps[@]}"
+done
 
 # InstallScripts()
 # InstallDotfiles()
 # InstallWallpapers()
 # InstallExtraPkg()
-
-InstallGitPkg
