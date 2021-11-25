@@ -17,16 +17,28 @@ GitRepoList=("https://github.com/radinals/dwm.git"
     "https://github.com/neovim/neovim.git")
 
 BuildDeps=("libgdk-pixbuf-xlib-2.0-0"
-    "libxinerama-dev" "libimlib2-dev"
-    "libx11-dev" "libxinerama-dev"
-    "pkg-config" "pulseaudio"
-    "libncurses-dev" "libpulse-dev"
-    "libxft-dev" "ninja-build"
-    "gettext" "libtool"
-    "libtool-bin" "autoconf"
-    "automake" "cmake"
-    "g++" "unzip"
-    "curl" "doxygen")
+    "libxinerama-dev"
+    "libimlib2-dev"
+    "libx11-dev"
+    "libxinerama-dev"
+    "pkg-config"
+    "pulseaudio"
+    "libncurses-dev"
+    "libpulse-dev"
+    "libxft-dev"
+    "ninja-build"
+    "gettext"
+    "libtool"
+    "libtool-bin"
+    "autoconf"
+    "automake"
+    "cmake"
+    "g++"
+    "unzip"
+    "curl"
+    "doxygen")
+
+echo ${#BuildDeps[@]}
 
 InstallPkg(){ apt-get -y install "$1" >/dev/null 2>&1; }
 
@@ -48,7 +60,7 @@ MakePkg(){
     cd "$1" || exit 1
     printf "%s\n" "Building..."
     make >/dev/null 2>&1
-    make install >/dev/null
+    make install >/dev/null 2>&1
     printf "%s\n" "Build complete..."
     printf "\n" 
 }
@@ -57,7 +69,7 @@ MakeNvim(){
     cd "$1" || exit 1
     printf "%s\n" "Building neovim stable..."
     git checkout stable
-    make CMAKE_BUILD_TYPE=Release  2>&1
+    make CMAKE_BUILD_TYPE=Release 
     make install
     printf "%s\n" "Build complete..."
     printf "\n" 
