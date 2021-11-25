@@ -1,181 +1,121 @@
 #!/usr/bin/env bash
 
-[ ! $EUID -ne 0 ] && echo "DO NOT RUN THIS AS ROOT!" && exit 0
+# TODO:
+# - Add something that shows the progress
+# - be able to toggle the build info prompt on/off
+# - be able to toggle the auto git pull off
+# - remove the git pull hint prompt, and make it auto overwrite the previous repository
+# BUGS:
+# gnutls_handshake() error when git pulling
 
-suckless_software(){
-    sudo apt-get install libgdk-pixbuf-xlib-2.0-0 libxft-dev libxinerama-dev git
+GitRepoList=(
+    "https://github.com/radinals/dwm.git"
+    "https://github.com/radinals/dwmblocks.git"
+    "https://github.com/radinals/dmenu.git"
+    "https://github.com/radinals/st.git"
+    "https://github.com/fulhax/ncpamixer"
+    "https://github.com/himdel/hsetroot.git"
+    "https://github.com/neovim/neovim.git")
 
-    source_dir="$HOME/.local/src/RICE"
+BuildDeps=(
+    "libxinerama-dev" "libimlib2-dev" "libx11-dev" "libxinerama-dev"
+    "pkg-config" "pulseaudio" "libncurses-dev" "libpulse-dev"
+    "libxft-dev" "ninja-build" "gettext" "libtool"
+    "libtool-bin" "autoconf" "automake" "cmake" "g++" "unzip"
+    "libgdk-pixbuf-xlib-2.0-0" "curl" "doxygen")
 
-    dwm_repo="https://github.com/radinals/dwm.git"
-    dwmblocks_repo="https://github.com/radinals/dwmblocks.git"
-    dmenu_repo="https://github.com/radinals/dmenu.git"
-    st_repo="https://github.com/radinals/st.git"
-    dotfiles_repo="https://github.com/radinals/dotfiles.git"
-    scripts_repo="httpa://github.com/radinals/scripts.git"
-    wp_repo="https://github.com/radinals/wallpapers.git"
+InstallPkg(){ apt-get -y install "$1" >/dev/null 2>&1; }
 
-    [ ! -d "$source_dir/dwm" ] && echo "Git cloning dwm repo" && git clone "$dwm_repo" "$source_dir/dwm" && echo -e "done\n"
-    [ ! -d "$source_dir/dwmblocks" ] && echo "Git cloning dwmblocks repo" && git clone "$dwmblocks_repo" "$source_dir/dwmblocks" && echo -e "done\n"
-    [ ! -d "$source_dir/dmenu" ] && echo "Git cloning dmenu repo" && git clone "$dmenu_repo" "$source_dir/dmenu" && echo -e "done\n"
-    [ ! -d "$source_dir/st" ] && echo "Git cloning st repo" && git clone "$st_repo" "$source_dir/st" && echo -e "done\n"
-    [ ! -d "$source_dir/dotfiles" ] && echo "Git cloning dotfiles repo" && git clone "$dotfiles_repo" "$source_dir/dotfiles" && echo -e "done\n"
+error(){ printf "%s\n" "##### $1 #####" >&2; exit 1; }
 
-    # TODO: FIX THIS, NEEDS A LOT MORE WORK!.
-    # TODO: Be able to pick and choose what to download and install.
-
-    # [ ! -d "$HOME/Pictures/" ] &&  mkdir -p "$HOME/Pictures" 
-    # [ ! -d "$HOME/Pictures/Wallpapers" ] && echo "Git cloning wallpapers repo" && git clone "$wp_repo" "$HOME/Pictures/Wallpapers" && echo -e "done\n"
-
-    # [ ! -d "$HOME/.local/bin/scripts" ] && echo "Git cloning scripts repo" && git clone "$scripts_repo" "$HOME/.local/bin/scripts" && echo -e "done\n"
-
-    makeCmd=$(sudo make install)
-
-    if ! [ -x "$(command -v "dwm")" ]; then 
-	echo "####################"
-    	echo "## INSTALLING DWM ##"
-    	echo "####################"
-	cd "$source_dir/dwm" && echo "Entered dwm build directory" && sudo make install && cd && echo "Exited build directory"
-	echo -e "##########################\n"
+GitCloneRepo(){
+    if [ ! -d "$1" ]; then
+	printf "%s\n" "Git cloning repository..." && \
+	    git clone "$2" "$1" && printf "%s\n" "Repo Cloned..."
     else
-	echo -e "dwm already installed, skipping step...\n"
+	printf "%s\n" "Checking for updates..."
+	cd "$1" || exit 1
+	git pull
     fi
-
-    if ! [ -x "$(command -v "dwmblocks")" ]; then 
-	echo "##########################"
-    	echo "## INSTALLING DWMBLOCKS ##"
-    	echo "##########################"
-	cd "$source_dir/dwmblocks" && echo "Entered dwmblocks build directory" && sudo make install && cd && echo "Exited build directory"
-	echo -e "##########################\n"
-    else
-	echo -e "dwmblocks already installed, skipping step...\n"
-    fi
-
-    if ! [ -x "$(command -v "dmenu")" ]; then 
-	echo "######################"
-    	echo "## INSTALLING DMENU ##"
-    	echo "######################"
-    	cd "$source_dir/dmenu" && echo "Entered dmenu build directory" && sudo make install && cd && echo "Exited build directory"
-    	echo -e "##########################\n"
-    else
-	echo -e "dmenu already installed, skipping step...\n"
-    fi
-
-    if ! [ -x "$(command -v "st")" ]; then 
-	echo "###################"
-    	echo "## INSTALLING ST ##"
-    	echo "###################"
-    	cd "$source_dir/st" && echo "Entered st terminal build directory" && sudo make install && cd && echo "Exited build directory"
-    	echo -e "##########################\n"
-    else
-	echo -e "st already installed, skipping step...\n"
-    fi
-
-    # TODO: Still does'nt work
-    # The script need more work
-    # REMINDER: Just make a makefile!
-    # echo "#########################"
-    # echo "## INSTALLING DOTFILES ##"
-    # echo "#########################"
-    # cd "$source_dir/dotfiles" && ./install.sh && cd && echo "installed"
-    # echo -e "##########################\n"
+    printf "\n" 
 }
 
-# TODO: Still does'nt work
-# build error
-install_neovim(){
+MakePkg(){
+    cd "$1" || exit 1
+    printf "%s\n" "Building..."
+    sudo make >/dev/null 2>&1
+    sudo make install
+    printf "%s\n" "Build complete..."
+    printf "\n" 
+}
 
-    if ! [ -x "$(command -v "nvim")" ]; then 
-	sudo apt-get -y install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
+MakeNvim(){
+    cd "$1" || exit 1
+    printf "%s\n" "Building neovim stable..."
+    git checkout stable
+    sudo make CMAKE_BUILD_TYPE=Release >/dev/null 2>&1
+    sudo make install
+    printf "%s\n" "Build complete..."
+    printf "\n"
+}
 
-	neovim_repo="https://github.com/neovim/neovim"
-    	source_dir="$HOME/.local/src"
-    	
-    	# echo "This script installs neovim from source"
-    	# echo "A few confirmation is needed"
-    	# 
-    	# echo "Do you want to install the stable version, or just the latest version? Y/N "
-    	# read -p "> " is_stable 
-    	# 
-    	# echo "Do a git pull? Y\N (say yes if the source code already exists, and you want to update it.)" read -p "> " do_gitpull
-    	
-    	# check the directories
-    	[ ! -d "$source_dir/neovim" ] && \
-    	    echo "## No existing Neovim source file found, doing a 'git clone' ##" && \
-	    git clone "$neovim_repo" "$source_dir/neovim" && echo -e "done\n"
-    	
-        #   [ "${do_gitpull^^}" == "Y" ] then echo "## Doing a 'git pull' ##" && git pull
-        #   [ "${is_stable^^}" == "Y" ] then echo "## Version set to 'stable' ##" && git checkout stable
-    	
-    	echo "#####################"
-    	echo "## BUILDING NEOVIM ##"
-    	echo "#####################"
+InstallPacker(){
+    if [ ! -d "$HOME/.local/share/nvim/site/pack/packer" ]; then
+	read -p "Install packer?" ConfirmInstall
+	if [ "${ConfirmInstall^^}" == "Y" ]; then
+	    git clone --depth 1 https://github.com/wbthomason/packer.nvim\
+		~/.local/share/nvim/site/pack/packer/start/packer.nvim && \
+		printf "%s\n" "Packer installed..."
+	else
+	    printf "%s\n" "Not Installing Packer..."
+	fi
 
-    	cd "$source_dir/neovim" && echo "Entered the source directory" && \
-    	    git checkout stable && sudo make CMAKE_BUILD_TYPE=Release && sudo make install
-    	
-    	echo "####################"
-    	echo "## BUILD COMPLETE ##"
-    	echo "####################"
     else
-	echo -e "nvim already installed.. skipping\n"
+	printf "%s\n" "Packer already installed..."
+
     fi
 }
 
-# TODO: Still does'nt work
-# missing a dependency
-install_hsetroot(){
-    if ! [ -x "$(command -v "hsetroot")" ]; then 
-	sudo apt-get -y install  libimlib2 libimlib2-dev libx11-dev libxinerama-dev pkg-config make
+GetProgDeps(){
+    DepPkg=$1
 
-	git_repo=https://github.com/himdel/hsetroot
-    	source_dir="$HOME/.local/src"
+    [ "$(dpkg-query -W -f='${status}' "${DepPkg[@]}" 2>/dev/null | grep -c "ok installed")" -lt "${#DepPkg[@]}" ] && \
+	printf "%s\n" "Installing Package Dependencies..."
+	sudo InstallPkg "${DepPkg[@]}"
+}
 
-    	[ ! -d "$source_dir/hsetroot" ] && echo "Git cloning hsetroot repo" && \
-	    git clone "$git_repo" "$source_dir/hsetroot" && echo -e "done\n"
+GitMakeInstall(){
+    ProgRepo="$1"
+    ProgDeps="$2"
+    SourceDir="/usr/local/src"
+    ProgName=$(basename "$ProgRepo" .git)
 
-    	echo "#######################"
-    	echo "## BUILDING HSETROOT ##"
-    	echo "#######################"
-    	cd "$source_dir/hsetroot" && echo -e "Entered build directory\n" && \
-	    sudo make install && cd && echo -e "Exiting build directory\n"
+    [ -z "$ProgName" ] && error "Missing the program name!."
+    [ -z "$ProgRepo" ] && error "Missing the program repository link!."
+
+    [ ! -d "$SourceDir" ] && mkdir -p "$SourceDir"
+
+    printf "%s\n" "##### $ProgName #####"
+    GetProgDeps "$ProgDeps"
+    GitCloneRepo "$SourceDir/$ProgName" "$ProgRepo"
+
+    if [ "$ProgName" == "neovim" ]; then
+	MakeNvim "$SourceDir/$ProgName"
+	InstallPacker
     else
-	echo -e "hsetroot already installed... skipping\n"
+	MakePkg "$SourceDir/$ProgName"
     fi
 }
 
-# TODO: Still does'nt work
-# build error
-install_ncpamixer(){
-    if ! [ -x "$(command -v "ncpamixer")" ]; then 
-	sudo apt-get -y install pulseaudio git libncurses-dev libpulse-dev
-
-    	git_repo="https://github.com/fulhax/ncpamixer" && echo -e "done\n"
-    	source_dir="$HOME/.local/src"
-
-    	[ ! -d "$source_dir/ncpamixer" ] && echo "Git cloning ncpamixer repo" && git clone "$git_repo" "$source_dir/ncpamixer"
-
-    	echo "########################"
-    	echo "## BUILDING NCPAMIXER ##"
-    	echo "########################"
-    	cd "$source_dir/ncpamixer" && echo -e "Entered build directory\n" && \
-	    make USE_WIDE=True && sudo make install && cd && echo -e "Exiting build directory\n"
-    else
-	echo -e "ncpamixer already installed.. skipping\n"
-    fi
+InstallGitPkg(){
+    for r in "${GitRepoList[@]}"; do
+        GitMakeInstall "$r" "${BuildDeps[@]}"
+    done
 }
 
-set_system_settings(){
+# InstallScripts()
+# InstallDotfiles()
+# InstallWallpapers()
+# InstallExtraPkg()
 
-    if ! [ -x "$(command -v "zsh")" ]; then sudo apt install zsh && chsh -s "/usr/bin/zsh" "$USER"; fi
-
-}
-
-if [ "$(lsb_release -i | awk '{print $3}')" == "Debian" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Ubuntu" ] || [ "$(lsb_release -i | awk '{print $3}')" == "Linux Mint" ]; then
-    [ ! -d "$source_dir" ] && echo "## Creating a Directory in $source_dir  " && mkdir -p "$source_dir"
-    suckless_software && install_neovim && install_hsetroot && install_ncpamixer
-
-else
-    echo "this distribution is not yet supported/tested"
-
-fi
+InstallGitPkg
