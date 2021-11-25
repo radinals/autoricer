@@ -44,17 +44,18 @@ GitMakeInstall(){
     [ ! -d "$SourceDir" ] && mkdir -p "$SourceDir"
 
     printf "%s\n" "##### $ProgName #####"
-    GitCloneRepo "$SourceDir/$ProgName" "$ProgRepo"
 
     if [ "$ProgName" == "neovim" ]; then
-	read -p "install neovim stable?" confirm_neovim
-	if [ "${confirm_neovim^^}" == "Y" ]; then
-	    MakeNvim "$SourceDir/$ProgName"
-	else
-	    printf "%s\n" "cancelled..."
-	fi
+        read -p "install neovim stable? Y/N" confirm_neovim
+        if [ "${confirm_neovim^^}" == "Y" ]; then
+            GitCloneRepo "$SourceDir/$ProgName" "$ProgRepo" || error "An error occured when git cloning neovim"
+            MakeNvim "$SourceDir/$ProgName" || error "An error occured when building neovim"
+        else
+            printf "%s\n" "cancelled..."
+        fi
     else
-	MakePkg "$SourceDir/$ProgName"
+        GitCloneRepo "$SourceDir/$ProgName" "$ProgRepo" || error "An error occured when cloning $ProgName"
+        MakePkg "$SourceDir/$ProgName" || error "An error occured when building $ProgName"
     fi
 }
 
@@ -72,7 +73,7 @@ BuildDeps=("libgdk-pixbuf-xlib-2.0-0"
     "libx11-dev"
     "libxinerama-dev"
     "pkg-config"
-    "pulseaudio"
+    #"pulseaudio"
     "libncurses-dev"
     "libpulse-dev"
     "libxft-dev"
