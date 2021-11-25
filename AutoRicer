@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 # TODO:
@@ -6,10 +7,9 @@
 # - be able to toggle the auto git pull off
 # - remove the git pull hint prompt, and make it auto overwrite the previous repository
 # BUGS:
-# gnutls_handshake() error when git pulling
+# gnu tls failes when git pulling
 
-GitRepoList=(
-    "https://github.com/radinals/dwm.git"
+GitRepoList=("https://github.com/radinals/dwm.git"
     "https://github.com/radinals/dwmblocks.git"
     "https://github.com/radinals/dmenu.git"
     "https://github.com/radinals/st.git"
@@ -17,12 +17,17 @@ GitRepoList=(
     "https://github.com/himdel/hsetroot.git"
     "https://github.com/neovim/neovim.git")
 
-BuildDeps=(
-    "libxinerama-dev" "libimlib2-dev" "libx11-dev" "libxinerama-dev"
-    "pkg-config" "pulseaudio" "libncurses-dev" "libpulse-dev"
-    "libxft-dev" "ninja-build" "gettext" "libtool"
-    "libtool-bin" "autoconf" "automake" "cmake" "g++" "unzip"
-    "libgdk-pixbuf-xlib-2.0-0" "curl" "doxygen")
+BuildDeps=("libgdk-pixbuf-xlib-2.0-0"
+    "libxinerama-dev" "libimlib2-dev"
+    "libx11-dev" "libxinerama-dev"
+    "pkg-config" "pulseaudio"
+    "libncurses-dev" "libpulse-dev"
+    "libxft-dev" "ninja-build"
+    "gettext" "libtool"
+    "libtool-bin" "autoconf"
+    "automake" "cmake"
+    "g++" "unzip"
+    "curl" "doxygen")
 
 InstallPkg(){ apt-get -y install "$1" >/dev/null 2>&1; }
 
@@ -43,8 +48,8 @@ GitCloneRepo(){
 MakePkg(){
     cd "$1" || exit 1
     printf "%s\n" "Building..."
-    sudo make >/dev/null 2>&1
-    sudo make install
+    make >/dev/null 2>&1
+    make install >/dev/null 2>&1
     printf "%s\n" "Build complete..."
     printf "\n" 
 }
@@ -53,35 +58,17 @@ MakeNvim(){
     cd "$1" || exit 1
     printf "%s\n" "Building neovim stable..."
     git checkout stable
-    sudo make CMAKE_BUILD_TYPE=Release >/dev/null 2>&1
-    sudo make install
+    make CMAKE_BUILD_TYPE=Release 
+    make install
     printf "%s\n" "Build complete..."
-    printf "\n"
-}
-
-InstallPacker(){
-    if [ ! -d "$HOME/.local/share/nvim/site/pack/packer" ]; then
-	read -p "Install packer?" ConfirmInstall
-	if [ "${ConfirmInstall^^}" == "Y" ]; then
-	    git clone --depth 1 https://github.com/wbthomason/packer.nvim\
-		~/.local/share/nvim/site/pack/packer/start/packer.nvim && \
-		printf "%s\n" "Packer installed..."
-	else
-	    printf "%s\n" "Not Installing Packer..."
-	fi
-
-    else
-	printf "%s\n" "Packer already installed..."
-
-    fi
+    printf "\n" 
 }
 
 GetProgDeps(){
     DepPkg=$1
-
     [ "$(dpkg-query -W -f='${status}' "${DepPkg[@]}" 2>/dev/null | grep -c "ok installed")" -lt "${#DepPkg[@]}" ] && \
-	printf "%s\n" "Installing Package Dependencies..."
-	sudo InstallPkg "${DepPkg[@]}"
+	printf "%s\n" "Installing Package Dependencies\n" && \
+	InstallPkg "${DepPkg[@]}"
 }
 
 GitMakeInstall(){
@@ -101,7 +88,6 @@ GitMakeInstall(){
 
     if [ "$ProgName" == "neovim" ]; then
 	MakeNvim "$SourceDir/$ProgName"
-	InstallPacker
     else
 	MakePkg "$SourceDir/$ProgName"
     fi
