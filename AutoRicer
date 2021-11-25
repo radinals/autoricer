@@ -77,9 +77,8 @@ MakeNvim(){
 
 GetProgDeps(){
     DepPkg=$1
-    [ "$(dpkg-query -W -f='${status}' "${DepPkg[@]}" 2>/dev/null | grep -c "ok installed")" -lt "${#DepPkg[@]}" ] && \
-	printf "%s\n" "Installing Package Dependencies\n" && \
-	InstallPkg "${DepPkg[@]}"
+	printf "%s\n" "Installing Package Dependencies..."
+    InstallPkg "${DepPkg[@]}"
 }
 
 GitMakeInstall(){
